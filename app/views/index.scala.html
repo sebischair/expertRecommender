@@ -1,0 +1,47 @@
+@(webJarAssets: WebJarAssets)
+
+<!DOCTYPE html>
+<html lang="en" ng-app="cApp">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <title>Expert Recommender</title>
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(webJarAssets.locate("angular-material.min.css"))">
+        <link rel="stylesheet" media="screen" href="@routes.WebJarAssets.at(webJarAssets.locate("materialize.min.css"))">
+        <link rel="stylesheet" media="screen" href="@routes.Assets.versioned("stylesheets/main.css")">
+        <link rel="shortcut icon" type="image/png" href="@routes.Assets.versioned("images/favicon.png")">
+    </head>
+    <body>
+        <div class="navbar-fixed">
+            <nav class="light-blue darken-4" role="navigation">
+                <div class="container nav-wrapper">
+                    <a href="/" class="brand-logo">Expert Recommender</a>
+                    <ul id="nav-mobile" class="right hide-on-med-and-down">
+                        <li><a href="/recommender/issue" class="active">Create Issue</a></li>
+                    </ul>
+                </div>
+                <div id="progress" class="progress light-blue darken-4">
+                    <div class="indeterminate"></div>
+                </div>
+            </nav></div>
+        <div class="row">
+            <div ng-view></div>
+        </div>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("jquery.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("materialize.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-route.min.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("ngStorage.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-resource.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("checklist-model.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("d3.js"))"></script>
+        <script src="@routes.WebJarAssets.at(webJarAssets.locate("angular-sanitize.js"))"></script>
+        <script src="@routes.Assets.versioned("javascripts/ui-bootstrap-tpls.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/app.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("javascripts/sc-angular.js")" type="text/javascript"></script>
+        <script src="@routes.Assets.versioned("components/recommender/recommender.js")" type="text/javascript"></script>
+    </body>
+</html>

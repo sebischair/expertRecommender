@@ -1,0 +1,125 @@
+.link {
+    fill: none;
+    stroke: #ccc;
+    stroke-width: 1.5px;
+}
+
+.progress {
+    margin: 0;
+    height: 5px;
+    visibility: hidden;
+}
+
+.progress .indeterminate {
+    background-color: #c0392b;
+}
+
+.modified-dropdown {
+    width: 250px;
+    overflow-x: hidden;
+    top: -5px !important;
+}
+
+.header {
+    margin: 0 !important;
+    padding-left: 15px !important;
+}
+
+ul.collection {
+    margin: 0rem 0 1rem 0;
+    overflow: auto;
+}
+
+ul.collection.small {
+    margin: 0rem 0 1rem 0;
+    overflow: auto;
+    max-height: 140px;
+}
+
+li.collection-item.avatar.small {
+    min-height: 65px !important;
+    padding-right: 40px;
+}
+
+.floating-dropdown {
+    position: absolute;
+    left: 0;
+    margin-top: -1px;
+}
+
+.spacer {
+    margin-top: 40px;
+}
+
+.textarea {
+    height: 300px;
+}
+
+.textcard {
+    height: 413px;
+}
+
+textarea.materialize-textarea.description {
+    height: 100%;
+    max-height: 200px;
+}
+
+.avatar-size {
+    font-size: 30px !important;
+}
+
+.smaller-font {
+    font-size: 12px;
+}
+
+.title {
+    font-size: 14px !important;
+}
+
+.wrapper {
+    padding-right: 15%;
+    transition: all 0.4s ease 0s;
+}
+
+#sidebar-wrapper {
+    margin-right: -5%;
+    right: 14%;
+    width: 20%;
+    position: fixed;
+    height: 100%;
+    overflow-y: visible;
+    z-index: 10;
+    transition: all 0.4s ease 0s;
+}
+
+.sidebar-nav {
+    position: absolute;
+    top: 0px;
+    list-style: none;
+    margin: 0;
+    padding-top: -3px;
+    padding: 0;
+    z-index: 11;
+}
+
+#toast-container {
+    top: 10%;
+    right: auto !important;
+    bottom: auto !important;
+    left: 5%;
+}
+
+.disabled-dropdown-item {
+    padding-right: 10px;
+    padding-left: 10px;
+}
+
+.dropdown-list-small {
+    padding: 0px !important;
+    padding-right: 10px !important;
+    padding-left: 10px !important;
+}
+
+.material-tooltip {
+    font-size: 12px;
+}

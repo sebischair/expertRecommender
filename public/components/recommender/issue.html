@@ -1,0 +1,441 @@
+<div ng-class="issueCreated ? 'container wrapper' : 'container'" xmlns="http://www.w3.org/1999/html">
+
+    <!-- Recommendation Content -->
+    <div ng-if="issueCreated" id="sidebar-wrapper">
+        <!-- team box -->
+        <div class="col s12" style="margin-top: 1px">
+            <div class="floating-dropdown">
+                <!-- Modal Trigger -->
+                <a href="#team" class="secondary-content btn-floating red modal-trigger">
+                    <i class="material-icons">settings</i>
+                </a>
+            </div>
+            <ul class="collection header">
+                <li class="collection-item">
+                    <h7>
+                        Predefined teams
+                    </h7>
+                </li>
+            </ul>
+            <ul class="collection small">
+                <li ng-if="teams.length === 0" class="collection-item">
+                    <span class="title">None defined</span>
+                </li>
+                <li ng-if="teams.length > 0" class="collection-item avatar small" ng-repeat="t in teams"
+                    on-finish-render="ngRepeatFinished">
+                    <a class="primary-content tooltipped" href="#"
+                       data-position="bottom" data-delay="50"
+                       data-tooltip="{{printMembers(t.members)}}">
+                        <i class="material-icons circle avatar-size">people</i></a>
+                    <span class="title">{{t.name}}</span><br>
+                    <a ng-click="addTeam(t.name)" href="#" ng-if="issueEvaluated" class="secondary-content">
+                        <i class="material-icons">add_circle</i></a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- experts box -->
+        <div class="col s12">
+            <div class="floating-dropdown">
+                <a ng-disabled="!issueEvaluated" href="#" ng-click="toggleButton('expert')"
+                   class="dropdown-button secondary-content btn-floating red"
+                   data-position="left" data-activates='dropdownExperts'>
+                    <i class="material-icons" id="expertButton">{{expertButton ? 'arrow_back' : 'search'}}</i>
+                </a>
+                <!-- Dropdown Structure -->
+                <ul id='dropdownExperts' class="dropdown-content modified-dropdown">
+                    <li class="disabled-dropdown-item white">
+                        <div class="input-field col-s-12">
+                            <i class="tiny material-icons prefix">search</i>
+                            <input ng-model="searchE.name" type="text" id="searchE">
+                        </div>
+                    </li>
+                    <li class="divider" tabindex="-1"></li>
+                    <li ng-repeat="p in recommendedExperts | filter:searchE" on-finish-render="ngRepeatFinished">
+                        <a href="#" class="dropdown-list-small" ng-click="addAssigneeEvent(p.name, 'expert', $event)"
+                           ng-class="p.time ? 'tooltipped' : 'red-text tooltipped'"
+                           data-position="left" data-delay="50"
+                           data-tooltip="Expertise rank{{p.rank > -1 ? ' #' + p.rank : ' n.a.'}}<br>{{p.skill.length > 0 ? printSkills(p.skill, true) : ''}}">
+                            <i class="material-icons">person</i><span class="title">{{p.name}}</span><br>
+                            <span class="smaller-font">has {{p.openIssues}} open issues'</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="collection header">
+                <li class="collection-item">
+                    <h7 ng-style="numberExperts > countExperts() ? {'color': 'red'} : ''">
+                        Experts<br>
+                        {{ numberExperts > 0 ? "(assign min. " + numberExperts + " without PO)" : "" }}
+                    </h7>
+                </li>
+            </ul>
+            <ul class="collection small">
+                <li ng-if="assignedExperts.length === 0" class="collection-item">
+                    <span class="title">None assigned</span>
+                </li>
+                <li ng-if="assignedExperts.length > 0" ng-repeat="p in assignedExperts"
+                    class="collection-item avatar small" on-finish-render="ngRepeatFinished">
+                    <a href="#" class="tooltipped"
+                       data-position="left" data-delay="50"
+                       data-tooltip="Expertise rank{{p.rank > -1 ? ' #' + p.rank : ' n.a.'}}<br>{{p.skill.length > 0 ? printSkills(p.skill, true) : ''}}">
+                        <i class="material-icons circle avatar-size">person</i>
+                    </a>
+                    <span class="title">{{p.name}}</span>
+                    <p class="smaller-font">
+                        {{p.role}}
+                    </p>
+                    <a href="#" ng-click="changeResponsible(p.name)" class="primary-content"
+                       ng-if="responsible !== p.name"><i
+                            class="material-icons">star_border</i></a>
+                    <a href="#" ng-click="remove(p.name, 'expert')" class="secondary-content"
+                       ng-if="responsible !== p.name"><i class="material-icons">delete</i></a>
+                    <a href="#" ng-click="changeResponsible(p.name)" class="secondary-content"
+                       ng-if="responsible === p.name"><i class="material-icons">star</i></a>
+                </li>
+            </ul>
+        </div>
+
+        <!-- novices box -->
+        <div class="col s12">
+            <div class="floating-dropdown">
+                <a ng-disabled="!issueEvaluated" href="#"
+                   class="dropdown-button secondary-content btn-floating red" ng-click="toggleButton('novice')"
+                   data-position="bottom" data-activates="dropdownNovices" ng-init="initDropdown()">
+                    <i class="material-icons" id="noviceButton">{{noviceButton ? 'arrow_back' : 'search'}}</i>
+                </a>
+                <!-- Dropdown Structure -->
+                <ul id='dropdownNovices' class="dropdown-content modified-dropdown">
+                    <li class="disabled-dropdown-item white">
+                        <div class="input-field col-s-12">
+                            <i class="tiny material-icons prefix">search</i>
+                            <input ng-model="searchN.name" type="text" id="searchN">
+                        </div>
+                    </li>
+                    <li class="divider" tabindex="-1"></li>
+                    <li ng-repeat="p in recommendedNovices | filter:searchN" on-finish-render="ngRepeatFinished">
+                        <a href="#" ng-click="addAssigneeEvent(p.name, 'novice', $event)"
+                           ng-class="p.time ? 'tooltipped' : 'red-text tooltipped'"
+                           data-position="left" data-delay="50"
+                           data-tooltip="Expertise rank{{p.rank > -1 ? ' #' + p.rank : ' n.a.'}}<br>{{p.skill.length > 0 ? printSkills(p.skill, true) : ''}}">
+                            <i class="material-icons">person</i>{{p.name}}<br>
+                            <span class="smaller-font">has {{p.openIssues}} open issues'</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+            <ul class="collection header">
+                <li class="collection-item">
+                    <h7 ng-style="numberNovices > assignedNovices.length ? {'color': 'red'} : ''">
+                        Novices<br>
+                        {{ numberNovices > 0 ? "(assign min. " + numberNovices + ")" : "" }}
+                    </h7>
+                </li>
+            </ul>
+            <ul class="collection small">
+                <li ng-if="assignedNovices.length === 0" class="collection-item">
+                    <span class="title">None assigned</span>
+                </li>
+                <li ng-if="assignedNovices.length > 0" ng-repeat="p in assignedNovices"
+                    class="collection-item avatar small" on-finish-render="ngRepeatFinished">
+                    <a href="#" class="tooltipped"
+                       data-position="left" data-delay="50"
+                       data-tooltip="Expertise rank{{p.rank > -1 ? ' #' + p.rank : ' n.a.'}}<br>{{p.skill.length > 0 ? printSkills(p.skill, true) : ''}}">
+                        <i class="material-icons circle avatar-size">person</i>
+                    </a>
+                    <span class="title">{{p.name}}</span>
+                    <p class="smaller-font">{{p.role}}</p>
+                    <a href="#" ng-click="changeResponsible(p.name)" class="primary-content"
+                       ng-if="responsible !== p.name"><i
+                            class="material-icons">star_border</i></a>
+                    <a href="#" ng-click="remove(p.name, 'novice')" class="secondary-content"
+                       ng-if="responsible !== p.name"><i class="material-icons">delete</i></a>
+                    <a href="#" ng-click="changeResponsible(p.name)" class="secondary-content"
+                       ng-if="responsible === p.name"><i class="material-icons">star</i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="row">
+        <h4>Create Issue</h4>
+
+        <!-- status boxes -->
+        <div class="input-field col s4"
+             ng-style="{'color': (selectedPriority === null) ? 'red' : 'black'}">
+            <select id="selectPriority" ng-model="selectedPriority"
+                    ng-change="onSelectChange('priority')" disabled>
+                <option value="" disabled selected>Choose...</option>
+                <option ng-repeat="priority in settings.priorities" value="{{priority.name}}">{{priority.name}}
+                </option>
+            </select>
+            <label for="selectPriority" class="control-label">Select Priority</label>
+        </div>
+        <div class="input-field col s4"
+             ng-style="{'color': (selectedType === null) ? 'red' : 'black'}">
+            <select id="selectType" ng-model="selectedType" ng-change="onSelectChange('type')"
+                    disabled>
+                <option value="" disabled selected>Choose...</option>
+                <option ng-repeat="type in settings.types" value="{{type.name}}">{{type.name}}
+                </option>
+            </select>
+            <label for="selectType" class="control-label">Select Type</label>
+        </div>
+        <div class="input-field col s4">
+            <select id="selectStatus" ng-model="selectedStatus"
+                    ng-change="onSelectChange('status')" disabled>
+                <option value="" disabled selected>Choose...</option>
+                <option ng-repeat="status in settings.status" value="{{status.name}}">{{status.name}}
+                </option>
+            </select>
+            <label for="selectStatus" class="control-label">Select Status</label>
+        </div>
+
+        <!-- text fields -->
+        <div class="col s12">
+            <div class="card textcard">
+                <div class="card-content">
+                    <div class="input-field col-s-12">
+                        <input ng-disabled="issueEdited" ng-model="title" type="text"
+                               class="form-control"
+                               id="issueTitle">
+                        <label for="issueTitle" class="control-label">Issue Title</label>
+                    </div>
+                    <div class="input-field col-s-12 textarea">
+                    <textarea ng-disabled="issueEdited" ng-model="text" class="materialize-textarea description"
+                              id="issueDescription"></textarea>
+                        <label for="issueDescription" class="control-label">Issue
+                            Description</label>
+                    </div>
+                </div>
+            </div>
+            <!-- Classification of issue -->
+            <div ng-if="algorithm !== 'lsa'" class="input-field col-s-12">
+                <div class="card">
+                    <div class="card-content"
+                         ng-if="explanationRecommendation.length > 0 && (algorithm == 'concept' || algorithm == 'vanish')">
+                        Recognized concepts in this issue:
+                        <p ng-bind-html="printCommaSeparated(explanationRecommendation)"></p>
+                    </div>
+                    <div class="card-content"
+                         ng-if="explanationRecommendation.length > 0 && algorithm == 'lda'">
+                        Recognized topics in this issue:
+                        <div ng-repeat="c in explanationRecommendation | limitTo: 5">
+                            <p ng-repeat="(key, value) in c">{{key}} {{value * 100|number :
+                                0}}%</p>
+                        </div>
+                        <p ng-if="explanationRecommendation.length > 5 && algorithm == 'lda'">
+                            ...</p>
+                    </div>
+                    <div class="card-content"
+                         ng-if="explanationRecommendation.length > 0 && algorithm == 'knn'">
+                        Similar issues:
+                        <div ng-repeat="c in explanationRecommendation | limitTo: 5">
+                            <p ng-repeat="(key, value) in c">{{key}} - {{value}}</p>
+                        </div>
+                        <p ng-if="explanationRecommendation.length > 5 && algorithm == 'knn'">
+                            ...</p>
+                    </div>
+                    <div class="card-content" ng-if="explanationRecommendation.length === 0">
+                        <p>Text classification</p>
+                        <p>None (yet)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- buttons -->
+        <div class="col s12">
+            <div class="form-group">
+                <div class="col sm4">
+                    <button class="waves-effect waves-light btn" ng-click="createIssue()"
+                            type="submit"><i
+                            class="material-icons right">{{ issueCreated ? "edit" : "add" }}</i>
+                        {{ issueCreated ?
+                        "Edit" : "Create" }} Issue
+                    </button>
+                </div>
+                <div class="col sm4">
+                    <!-- Modal Trigger -->
+                    <a ng-if="issueCreated && !issueEvaluated"
+                       class="waves-effect waves-light btn modal-trigger red"
+                       href="#help"><i
+                            class="material-icons right">help</i>Get
+                        Help</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- comment section -->
+    <div ng-hide="!issueCreated" class="row spacer">
+        <div class="col s12">
+            <div class="col s8 offset-s2">
+                <div class="card" ng-repeat="comment in comments">
+                    <div class="card-content">
+                        <p>{{comment.text}}</p>
+                    </div>
+                    <div class="card-action">
+                        <span>{{ comment.date | date:'MM/dd/yyyy - hh:mm' }}</span>
+                    </div>
+                </div>
+            </div>
+            <div class="input-field col s8 offset-s2">
+                                    <textarea class="materialize-textarea" id="comment"
+                                              ng-model="commentText"></textarea>
+                <label for="comment" class="control-label">Comment</label>
+            </div>
+            <div class="col sm8 offset-s2">
+                <button class="waves-effect waves-light btn" ng-click="createComment()"
+                        type="submit">Create Comment
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- settings -->
+    <div class="row spacer">
+        <ul class="collapsible" data-collapsible="accordion">
+            <li>
+                <div class="collapsible-header"><i class="material-icons">settings</i>Recommender
+                    Settings
+                </div>
+                <div class="collapsible-body"><span>
+                        <div class="row">
+                            <p>Select Project</p>
+                            <div class="col s4" ng-repeat="projectKey in settings.projectKeys">
+                                <input class="with-gap" name="projectKey" type="radio" id="{{projectKey.name}}"
+                                       ng-click="onSelectSettings(projectKey.name, 'projectKey')"
+                                       ng-checked="projectKey.selected"/>
+                                <label for="{{projectKey.name}}">{{projectKey.name}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p>Select Algorithm</p>
+                            <div class="col s4" ng-repeat="algorithm in settings.algorithms">
+                                <input class="with-gap" name="algorithm" type="radio" id="{{algorithm.name}}"
+                                       ng-click="onSelectSettings(algorithm.name, 'algorithm')"
+                                       ng-checked="algorithm.selected"/>
+                                <label for="{{algorithm.name}}">{{algorithm.name}}</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <p>Select Trainingsdata</p>
+                            <div class="col s4" ng-repeat="dataset in settings.datasets">
+                                <input class="with-gap" name="dataset" type="radio" id="{{dataset.name}}"
+                                       ng-click="onSelectSettings(dataset.name, 'dataset')"
+                                       ng-checked="dataset.selected"/>
+                                <label for="{{dataset.name}}">{{dataset.name}}</label>
+                            </div>
+                        </div>
+                </span></div>
+            </li>
+        </ul>
+    </div>
+</div>
+
+<!-- Modals -->
+
+<!-- Team Modal Structure -->
+<div id="team" class="modal">
+    <div class="modal-content">
+        <h4>Edit teams</h4>
+        <a href="#" ng-click="editTeam('')" class="primary-content">
+            <i class="material-icons">add_circle</i></a>
+        <div ng-if="teamEdit === ''" ng-repeat="t in teams">
+            <ul class="collection header">
+                <ul class="collection-item">
+                    <h7>{{t.name}}</h7>
+                    <a href="#" ng-click="removeTeam(t.name)" class="primary-content">
+                        <i class="material-icons">delete</i></a>
+                    <a href="#" ng-click="editTeam(t.name)" class="secondary-content">
+                        <i class="material-icons">edit</i></a>
+                </ul>
+            </ul>
+            <ul class="collection">
+                <li ng-repeat="m in t.members"
+                    class="collection-item avatar">
+                    <i class="material-icons circle avatar-size">person</i>
+                    <span class="title">{{m.name}}</span>
+                    <p>Expertise rank{{m.rank > -1 ? ' #' + m.rank : 'n.a.'}}</p>
+                    <ul class="collapsible" data-collapsible="accordion">
+                        <li>
+                            <div class="collapsible-header"><i class="material-icons">info</i>
+                                Skills
+                            </div>
+                            <div class="collapsible-body">
+                    <span>
+                        {{m.skill.length > 0 ? printSkills(m.skill, false) : ''}}
+                    </span>
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+        <div ng-if="teamEdit !== ''">
+            <div class="input-field col s12">
+                <input ng-model="teamEdit.name" type="text" class="form-control"
+                       id="teamName">
+                <label for="teamName" class="control-label">Team name</label>
+            </div>
+            <div class="input-field col s12">
+                <i class="material-icons prefix">person</i>
+                <input type="text" id="autocomplete-input" class="autocomplete" ng-init="initAutocomplete()">
+                <label for="autocomplete-input">Expert name</label>
+            </div>
+            <ul class="collection">
+                <li ng-repeat="m in teamEdit.members" on-finish-render="ngRepeatFinished"
+                    class="collection-item avatar">
+                    <i class="material-icons circle avatar-size">person</i>
+                    <span class="title">{{m.name}}</span>
+                    <p>Expertise rank{{m.rank > -1 ? ' #' + m.rank : ' n.a.'}}<br>{{m.skill.length > 0 ?
+                        printSkills(m.skill, false) : ''}}</p>
+                    <a href="#" ng-click="removeMember(m.name)" class="secondary-content">
+                        <i class="material-icons">delete</i></a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <a href="#" ng-if="teamEdit !== ''" ng-click="saveTeam()"
+           class="modal-action waves-effect waves-green btn-flat">Save</a>
+        <a href="#" ng-click="teamEdit = ''"
+           class="modal-action modal-close waves-effect waves-green btn-flat">Exit</a>
+    </div>
+</div>
+
+<!-- Help Modal Structure -->
+<div id="help" class="modal">
+    <div class="modal-content">
+        <h4>Select expert to evaluate problem</h4>
+        <ul class="collection with-header">
+            <li ng-repeat="p in recommendedExperts | limitTo:5"
+                class="collection-item avatar">
+                <i class="material-icons circle avatar-size">person</i>
+                <span class="title">{{p.name}}</span>
+                <p>Expertise rank{{p.rank > -1 ? ' #' + p.rank : 'n.a.'}}</p>
+                <ul class="collapsible" data-collapsible="accordion">
+                    <li>
+                        <div class="collapsible-header"><i class="material-icons">info</i>
+                            Skills
+                        </div>
+                        <div class="collapsible-body">
+                    <span>
+                        {{p.skill.length > 0 ? printSkills(p.skill, false) : ''}}
+                    </span>
+                        </div>
+                    </li>
+                </ul>
+                <a href="#" ng-click="addAssignee(p.name, 'help')"
+                   class="secondary-content">
+                    <i class="material-icons">check</i></a>
+            </li>
+        </ul>
+    </div>
+    <div class="modal-footer">
+        <a href="#"
+           class="modal-action modal-close waves-effect waves-green btn-flat">Exit</a>
+    </div>
+</div>

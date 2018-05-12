@@ -1,0 +1,19 @@
+logs
+target
+/.idea
+/.idea_modules
+/.classpath
+/.project
+/.settings
+/RUNNING_PID
+
+mongodump/
+.idea/
+logs/
+target/
+yajsw
+conf/application.local.conf
+out/
+
+# Exclude generated models
+data/*
