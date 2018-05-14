@@ -64,6 +64,10 @@ public class Concept extends Recommender {
 
                 assigneeConceptOrTopicMatrix.put(c, assigneeMatrix);
             }
+
+            for (String concept : assigneeConceptOrTopicMatrix.keySet()) {
+                assigneeConceptOrTopicMatrix.put(concept, sortByValues(assigneeConceptOrTopicMatrix.get(concept)));
+            }
         }
     }
 

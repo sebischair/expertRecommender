@@ -166,6 +166,10 @@ public class LSA extends Recommender {
                 assigneeConceptOrTopicMatrix.put(Integer.toString(j), assigneeMatrix);
             }
         }
+
+        for (String topic : assigneeConceptOrTopicMatrix.keySet()) {
+            assigneeConceptOrTopicMatrix.put(topic, sortByValues(assigneeConceptOrTopicMatrix.get(topic)));
+        }
     }
 
     @Override

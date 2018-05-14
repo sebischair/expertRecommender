@@ -46,50 +46,49 @@ public abstract class Recommender {
     }
 
     public Recommender(String projectKey, String scope, int trainingSize, int kOrNumTopics) {
-        if (!(this instanceof KNN)) {
-            Issue issueModel = new Issue();
-            ArrayNode issues = issueModel.findAllDesignDecisionsForPredictionInAProject(projectKey);
-            List<ObjectNode> orderedIssues = issueModel.orderIssuesByResolutionDate(issues);
-            int trainingDataSetSize = (int) Math.floor(issues.size() * (trainingSize / 100.));
+        Issue issueModel = new Issue();
+        ArrayNode issues = issueModel.findAllDesignDecisionsForPredictionInAProject(projectKey);
+        List<ObjectNode> orderedIssues = issueModel.orderIssuesByResolutionDate(issues);
+        int trainingDataSetSize = (int) Math.floor(issues.size() * (trainingSize / 100.));
 
-            List<ObjectNode> trainingIssues;
-            if (scope.equals("all")) {
-                ObjectNode lastTrainingIssue = orderedIssues.get(trainingDataSetSize);
-                issues = issueModel.findAllIssuesInAProject(projectKey);
-                orderedIssues = issueModel.orderIssuesByResolutionDate(issues);
-                int index = -1;
-                for (ObjectNode issue : orderedIssues) {
-                    index++;
-                    if (issue.has("name") && issue.get("name").asText().equals(lastTrainingIssue.get("name").asText())) {
-                        break;
-                    }
+        List<ObjectNode> trainingIssues;
+        if (scope.equals("all")) {
+            ObjectNode lastTrainingIssue = orderedIssues.get(trainingDataSetSize);
+            issues = issueModel.findAllIssuesInAProject(projectKey);
+            orderedIssues = issueModel.orderIssuesByResolutionDate(issues);
+            int index = -1;
+            for (ObjectNode issue : orderedIssues) {
+                index++;
+                if (issue.has("name") && issue.get("name").asText().equals(lastTrainingIssue.get("name").asText())) {
+                    break;
                 }
-                trainingIssues = orderedIssues.subList(0, index);
-            } else {
-                trainingIssues = orderedIssues.subList(0, trainingDataSetSize);
             }
-
-            trainingIssues.forEach(issue -> {
-                if (issue.has(StaticFunctions.ASSIGNEE) && issue.has(StaticFunctions.SUMMARY)
-                        && issue.has(StaticFunctions.DESCRIPTION)
-                        && issue.has(StaticFunctions.RESOLUTION_DATE)
-                        && issue.get(StaticFunctions.ASSIGNEE) != null && issue.get(StaticFunctions.SUMMARY) != null
-                        && issue.get(StaticFunctions.DESCRIPTION) != null
-                        &&  issue.get(StaticFunctions.RESOLUTION_DATE) != null && issue.get(StaticFunctions.RESOLUTION_DATE).asText() != "") {
-                    trainingTextList.add(issue.get(StaticFunctions.SUMMARY).asText("") + " " + issue.get(StaticFunctions.DESCRIPTION).asText(""));
-                    trainingAssigneeList.add(issue.get(StaticFunctions.ASSIGNEE).asText(""));
-                    trainingDatesList.add(LocalDate.parse(issue.get(StaticFunctions.RESOLUTION_DATE).asText(""), StaticFunctions.DATE_FORMAT));
-
-                    ArrayNode empty_trainingConceptList = Json.newArray();
-                    empty_trainingConceptList.add("");
-                    if (issue.has(StaticFunctions.CONCEPTS) && issue.get(StaticFunctions.CONCEPTS) != null) {
-                        trainingConceptList.add(issue.get(StaticFunctions.CONCEPTS));
-                    } else {
-                        trainingConceptList.add(empty_trainingConceptList);
-                    }
-                }
-            });
+            trainingIssues = orderedIssues.subList(0, index);
+        } else {
+            trainingIssues = orderedIssues.subList(0, trainingDataSetSize);
         }
+
+        trainingIssues.forEach(issue -> {
+            if (issue.has(StaticFunctions.ASSIGNEE) && issue.has(StaticFunctions.SUMMARY)
+                    && issue.has(StaticFunctions.DESCRIPTION)
+                    && issue.has(StaticFunctions.RESOLUTION_DATE)
+                    && issue.get(StaticFunctions.ASSIGNEE) != null && issue.get(StaticFunctions.SUMMARY) != null
+                    && issue.get(StaticFunctions.DESCRIPTION) != null
+                    && issue.get(StaticFunctions.RESOLUTION_DATE) != null && issue.get(StaticFunctions.RESOLUTION_DATE).asText() != "") {
+                trainingTextList.add(issue.get(StaticFunctions.SUMMARY).asText("") + " " + issue.get(StaticFunctions.DESCRIPTION).asText(""));
+                trainingAssigneeList.add(issue.get(StaticFunctions.ASSIGNEE).asText(""));
+                trainingDatesList.add(LocalDate.parse(issue.get(StaticFunctions.RESOLUTION_DATE).asText(""), StaticFunctions.DATE_FORMAT));
+
+                ArrayNode empty_trainingConceptList = Json.newArray();
+                empty_trainingConceptList.add("");
+                if (issue.has(StaticFunctions.CONCEPTS) && issue.get(StaticFunctions.CONCEPTS) != null) {
+                    trainingConceptList.add(issue.get(StaticFunctions.CONCEPTS));
+                } else {
+                    trainingConceptList.add(empty_trainingConceptList);
+                }
+            }
+        });
+
 
         // Unique trainingConceptList
         for (JsonNode conceptNode : trainingConceptList) {
